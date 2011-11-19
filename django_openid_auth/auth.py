@@ -75,6 +75,10 @@ class OpenIDBackend:
         except UserOpenID.DoesNotExist:
             if getattr(settings, 'OPENID_CREATE_USERS', False):
                 user = self.create_user_from_openid(openid_response)
+            elif getattr(settings, 'OPENID_ASSOCIATE_USERS', False):
+                details = self._extract_user_details(openid_response)
+                user = User.objects.get(email=details['email'])
+                self.associate_openid(user, openid_response)
         else:
             user = user_openid.user
 
